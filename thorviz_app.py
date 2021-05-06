@@ -180,10 +180,10 @@ st.set_page_config(
 
 # ------------------------------ Sidebar ------------------------------
 
-st.sidebar.title("Config")
+#st.sidebar.title("Config")
 
 #days = st.sidebar.slider("Days:", value=60, min_value=0, max_value=60)
-primary = st.sidebar.selectbox("Primary:", COINS)
+primary = "RUNE"#st.sidebar.selectbox("Primary:", COINS)
 #compare = st.sidebar.multiselect("Compare: ", COINS)
 
 
@@ -232,44 +232,16 @@ with col2:
 
 with col3:
     st.write("")
-# ------------------------------ Trading View Chart ------------------------------
-
-with st.beta_expander("Market (Binance)"):
-
-    components.html(
-        f"""
-    <div class="tradingview-widget-container">
-      <div id="tradingview_49e5b"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-      <script type="text/javascript">
-      new TradingView.widget(
-      {{
-      "symbol": "BINANCE:{primary}USDT",
-      "interval": "4H",
-      "timezone": "Etc/UTC",
-      "style": "1",
-      "locale": "en",
-      "toolbar_bg": "#f1f3f6",
-      "enable_publishing": false,
-      "allow_symbol_change": true,
-      "container_id": "tradingview_49e5b"
-      }}
-      );
-      </script>
-    </div>
-    """,
-        height=550,
-        width=900,
-    )
-
+    st.markdown("[github](https://github.com/Cattleman/thor-viz)")
+    st.markdown("[twitter](https://twitter.com/IanHensel)")
 
 # ------------------------------ Sections ------------------------------
 
-st.error("This dashboard is in beta, there may be bugs.")
-if st.button("I understand there could be bugs, let me in!"):
+st.error("This dashboard is in beta, there may be bugs. 🐞")
+if st.button("➡️  I understand there could be bugs, let me in!"):
 
 
-    with st.beta_expander("Rune Baseline Price"):
+    with st.beta_expander("Rune Baseline Price ⚖️"):
     
         st.write('RUNE TO MOON!')
         st.write(f'Data Source for MCCN: {"https://midgard.thorchain.info/v2/network"}')
@@ -334,6 +306,36 @@ if st.button("I understand there could be bugs, let me in!"):
         st.write(f'Speculation Premium (USD): ${np.round(rune_dict.get("speculation_premium_usd"), 2) :,}')
         st.write(f'Speculation as a percentage of Market Price: {np.round(rune_dict.get("speculation_pct_of_market") * 100 ,2)}%')
 
+
+# ------------------------------ Trading View Chart ------------------------------
+
+    with st.beta_expander("Market (Binance) 📈📊"):
+
+        components.html(
+            f"""
+        <div class="tradingview-widget-container">
+          <div id="tradingview_49e5b"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+          <script type="text/javascript">
+          new TradingView.widget(
+          {{
+          "symbol": "BINANCE:{primary}USDT",
+          "interval": "4H",
+          "timezone": "Etc/UTC",
+          "style": "1",
+          "locale": "en",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "allow_symbol_change": true,
+          "container_id": "tradingview_49e5b"
+          }}
+          );
+          </script>
+        </div>
+        """,
+            height=550,
+            width=900,
+        )
 
     # TODO add additional tools
     with st.beta_expander("Support Development 🛠️ 🙏"):
