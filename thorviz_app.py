@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, timedelta
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict
 
 # Core
 import pandas as pd
@@ -44,8 +44,8 @@ def get_rune_stats() -> Dict[str, float]:
     mccn = requests.get('https://midgard.thorchain.info/v2/network')
     mccn_dict = mccn.json()
     
-    mccn_total_pooled_rune = float(mccn_dict['totalPooledRune']) / 1e7
-    mccn_total_active_bond = float(mccn_dict['bondMetrics']['totalActiveBond']) / 1e7 
+    mccn_total_pooled_rune = float(mccn_dict['totalPooledRune']) / 1e8
+    mccn_total_active_bond = float(mccn_dict['bondMetrics']['totalActiveBond']) / 1e8 
     
     # ---
     
@@ -53,8 +53,8 @@ def get_rune_stats() -> Dict[str, float]:
     sccn = requests.get('http://thorb.sccn.nexain.com:8080/v1/network')
     sccn_dict = sccn.json()
     
-    sccn_total_staked_rune = float(sccn_dict['totalStaked']) / 1e7
-    sccn_total_active_bond = float(sccn_dict['bondMetrics']['totalActiveBond']) / 1e7 
+    sccn_total_staked_rune = float(sccn_dict['totalStaked']) / 1e8
+    sccn_total_active_bond = float(sccn_dict['bondMetrics']['totalActiveBond']) / 1e8 
     
     # calculations
     
@@ -273,19 +273,19 @@ if st.button("I understand there could be bugs, let me in!"):
     
         st.write('RUNE TO MOON!')
         st.write(f'Data Source for MCCN: {"https://midgard.thorchain.info/v2/network"}')
-        network_df = fetch_network_rune_data()
+       # network_df = fetch_network_rune_data()
 
         # This method of calculating total_pooled_rune is simplified below
         #total_pooled_rune = network_df['totalPooledRune'][0].astype(float) / 1e7
         
         #total_reserve = network_df['totalReserve'][0].astype(float) / 1e7
 
-        total_active_bond = network_df['totalActiveBond'][0].astype(float) / 1e7
-        total_standby_bond = network_df['totalStandbyBond'][0].astype(float) / 1e7
+        #total_active_bond = network_df['totalActiveBond'][0].astype(float) / 1e7
+        #total_standby_bond = network_df['totalStandbyBond'][0].astype(float) / 1e7
         
 
         # Market Price, total pooled_rune
-        rune_market_price, total_pooled_rune = get_rune_market_price_and_depth()
+        #rune_market_price, total_pooled_rune = get_rune_market_price_and_depth()
         
         #rune_list = [
          #       total_pooled_rune,
@@ -295,57 +295,44 @@ if st.button("I understand there could be bugs, let me in!"):
            # ]
 
         # TRYING to match Slaw by subtracting `total_standby_bond`
-        total_rune_in_network = np.round(total_pooled_rune + total_active_bond , 2) - total_standby_bond
+        #total_rune_in_network = np.round(total_pooled_rune + total_active_bond , 2) - total_standby_bond
         
         # Get MCCN Pool data
-        mccn_pool_df = get_multichain_pool_data()
+        #mccn_pool_df = get_multichain_pool_data()
 
         # Calculate non-Rune TVL
-        nonrune_tvl = calculate_non_rune_TVL(df=mccn_pool_df)
+        #nonrune_tvl = calculate_non_rune_TVL(df=mccn_pool_df)
         
         # Deterministic Value in USD
-        deterministic_value = 3 * nonrune_tvl # 3:1
+        #deterministic_value = 3 * nonrune_tvl # 3:1
 
         
-        baseline_price = deterministic_value / total_rune_in_network
+        #baseline_price = deterministic_value / total_rune_in_network
         
-        in_net_speculation_premium = rune_market_price - baseline_price
+        #in_net_speculation_premium = rune_market_price - baseline_price
         
         # Spec in percentage terms
-        speculation_pct = 100 * np.round(in_net_speculation_premium, 2)/ np.round(rune_market_price, 2)
+        #speculation_pct = 100 * np.round(in_net_speculation_premium, 2)/ np.round(rune_market_price, 2)
         
+        rune_dict = get_rune_stats()
+
         # `:,` formats values with comma for easier reading.
 
-        st.write(f'total_pooled_rune: {np.round(total_pooled_rune, 2):,}')
+        st.write(f'total_pooled_rune: ᚱ{np.round(rune_dict["Rune_in_LP_count"], 2):,}')
         #st.write(f'total_reserve_rune: {np.round(total_reserve, 2):,}')
-        st.write(f'total_active_bond_rune: {np.round(total_active_bond, 2):,}')
-        st.write(f'total_standby_bond_rune: {np.round(total_standby_bond, 2):,}')
+        st.write(f'total_active_bond_rune: ᚱ{np.round(rune_dict.get("Rune_bonded_count"), 2):,}')
+        st.write(f'Total Rune in-Network: ᚱ{np.round(rune_dict.get("total_in_network_count"), 2):,}')
+        #st.write(f'total_standby_bond_rune: {np.round(total_standby_bond, 2):,}')
         st.write('-'* 30)
         
         # Calculate Baseline Price
-        st.write(f"nonRUNE TVL: {np.round(nonrune_tvl, 2):,}")
-        st.write(f"Deterministic Value: ${np.round(deterministic_value, 2):,}")
-        st.write(f"in-network RUNE: {np.round(total_rune_in_network,2):,}")
-        st.write(f"Market Price (USD): ${np.round(rune_market_price, 2):,}")
-        st.write(f"Baseline Price (USD): ${np.round(baseline_price, 2):,}")
-        st.write(f"Speculation Premium (USD): ${np.round(in_net_speculation_premium, 2) :,}")
-        st.write(f'Speculation as a percentage of Market Price: {np.round(speculation_pct,2)}%')
-
-
-    with st.beta_expander("new calculation method"):
-        
-        # Method directly from Slaw
-        
-        
-
-        RUNE_in_LP_count = totalStaked_SCCN + totalPooleRune_MCCN
-        RUNE_bonded_count = totalActiveBond_SCCN + totalActiveBond_MCCN
-
-        total_in_network_count = RUNE_in_LP_count + RUNE_bonded_count
-
-        deterministic_value = RUNE_in_LP_count * market_price * 3
-        determined_price = deterministic_value / total_in_network_count
-        speculation = market_price - determined_price
+        #st.write(f"nonRUNE TVL: {np.round(nonrune_tvl, 2):,}")
+        st.write(f'Total Deterministic Value: ${np.round(rune_dict.get("deterministic_value_usd"), 2):,}')
+        #st.write(f"in-network RUNE: {np.round(total_rune_in_network,2):,}")
+        st.write(f'Market Price (USD): ${np.round(rune_dict.get("market_price_usd"), 2):,}')
+        st.write(f'Baseline Price (USD): ${np.round(rune_dict.get("determined_price"), 2):,}')
+        st.write(f'Speculation Premium (USD): ${np.round(rune_dict.get("speculation_premium_usd"), 2) :,}')
+        st.write(f'Speculation as a percentage of Market Price: {np.round(rune_dict.get("speculation_pct_of_market") * 100 ,2)}%')
 
 
     # TODO add additional tools
