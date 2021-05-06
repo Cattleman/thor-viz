@@ -9,6 +9,7 @@ import requests
 import streamlit as st
 import streamlit.components.v1 as components
 import numpy as np
+import ftx
 
 ########################################################################################
 # Config
@@ -19,6 +20,71 @@ COINS = ["RUNE","BNB","BTC","ETH",]
 ########################################################################################
 # Data
 ########################################################################################
+
+def get_market_price() -> float:
+    
+    ftx_client = ftx.FtxClient()
+    
+    result = ftx_client.get_market('RUNE/USD')
+    
+    market_price = result['price']
+    
+    return market_price
+
+@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+def get_rune_stats() -> Dict[str, float]:
+    
+    '''
+    Slaw's method.
+    '''
+    
+    market_price = get_market_price()
+    
+    # MCCN
+    mccn = requests.get('https://midgard.thorchain.info/v2/network')
+    mccn_dict = mccn.json()
+    
+    mccn_total_pooled_rune = float(mccn_dict['totalPooledRune']) / 1e7
+    mccn_total_active_bond = float(mccn_dict['bondMetrics']['totalActiveBond']) / 1e7 
+    
+    # ---
+    
+    # SCCN
+    sccn = requests.get('http://thorb.sccn.nexain.com:8080/v1/network')
+    sccn_dict = sccn.json()
+    
+    sccn_total_staked_rune = float(sccn_dict['totalStaked']) / 1e7
+    sccn_total_active_bond = float(sccn_dict['bondMetrics']['totalActiveBond']) / 1e7 
+    
+    # calculations
+    
+    rune_in_lp_count = mccn_total_pooled_rune + sccn_total_staked_rune
+    rune_bonded_count = mccn_total_active_bond + sccn_total_active_bond
+    
+    total_in_network_count = rune_in_lp_count + rune_bonded_count
+    
+    deterministic_value = rune_in_lp_count * market_price * 3 # In USD
+    
+    determined_price = deterministic_value / total_in_network_count # In USD
+    
+    speculation = market_price - determined_price # USD
+    
+    speculation_pct = speculation / market_price
+    
+    # Collect Results
+    result_dict = {
+        'Rune_in_LP_count': rune_in_lp_count,
+        'Rune_bonded_count': rune_bonded_count,
+        'total_in_network_count': total_in_network_count,
+        'deterministic_value_usd': deterministic_value,
+        'determined_price': determined_price,
+        'market_price_usd': market_price,
+        'speculation_premium_usd': speculation,
+        'speculation_pct_of_market': speculation_pct,
+    }
+    
+    return result_dict 
+
 
 
 @st.cache(suppress_st_warning=True, allow_output_mutation=True)
