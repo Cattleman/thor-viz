@@ -336,8 +336,14 @@ if st.button("I understand there could be bugs, let me in!"):
 
 
     # TODO add additional tools
-    #with st.beta_expander("Pool Stats"):
-
+    with st.beta_expander("Support Development 🛠️ 🙏"):
+        
+        #st.write('-' * 30)
+        st.write('If this dashboard is helpful consider supporting development.')
+        st.write('Project Roadmap will come soon.')
+        st.markdown(' **THOR Address:** `thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392`')
+        st.markdown('**BNB Address:** `bnb1t6nwpm5scau65gkm9ys8wceutz5p2a3mjhmjuc`')
+        st.markdown(' **View Recent Transactions:** [https://thorchain.net/#/address/thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392](https://thorchain.net/#/address/thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392)')
      #   st.write('Pool STATS go here...')
 
     #with st.beta_expander("Social"):
