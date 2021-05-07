@@ -4,11 +4,18 @@ Thorchain Tokenomics Visualized.
 
 **Note:** This project is still in development.
 
+# Reach out!
+The ThorChain Community is amazing - we want to build, learn and share.
+Have ideas or find a bug? Let us know!
+
+**Twitter:** https://twitter.com/IanHensel
+
 # Contributors
 Have an idea for a way to make this better?
 PRs and issues are welcome!
+If it's good we'll send you Rune!
 
-# To Run localy 
+# To Run locally 
 
 1. clone repo
 2. make a branch (optional)

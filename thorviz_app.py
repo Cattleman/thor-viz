@@ -22,7 +22,10 @@ COINS = ["RUNE","BNB","BTC","ETH",]
 ########################################################################################
 
 def get_market_price() -> float:
-    
+
+    """
+    Grabs Rune/USD market price from FTX.
+    """
     ftx_client = ftx.FtxClient()
     
     result = ftx_client.get_market('RUNE/USD')
@@ -33,10 +36,11 @@ def get_market_price() -> float:
 
 @st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def get_rune_stats() -> Dict[str, float]:
-    
-    '''
-    Slaw's method.
-    '''
+    # TODO - docstring 
+    """
+    Gathers ThorChain Network data from MCCN and SCCN,
+    """ 
+
     
     market_price = get_market_price()
     
@@ -84,79 +88,6 @@ def get_rune_stats() -> Dict[str, float]:
     }
     
     return result_dict 
-
-
-
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
-def fetch_network_rune_data() -> pd.DataFrame:
-
-    '''
-    Gathers network Rune values for calculating in-network rune.
-    
-    Documentation: https://testnet.midgard.thorchain.info/v2/doc#operation/GetNetworkData
-    '''
-    
-    network_data_request = 'https://midgard.thorchain.info/v2/network'
-    rn = requests.get(network_data_request)
-    net_response_dict = rn.json()
-    
-    _df = pd.DataFrame([net_response_dict['bondMetrics']]).astype(float)
-    
-    _df['totalPooledRune'] = float(net_response_dict['totalPooledRune'])
-    _df['totalReserve'] = float(net_response_dict['totalReserve'])
-    
-    return _df
-
-
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
-def get_rune_market_price_and_depth() -> Tuple[float, float]:
-    
-    '''
-    Get the the price of Rune based on the deepest USD pool and the current total Rune in the pools.
-    
-    Documentation: https://testnet.midgard.thorchain.info/v2/doc#operation/GetStats
-    
-    '''
-    
-    my_request = 'https://midgard.thorchain.info/v2/stats'
-    
-    r = requests.get(my_request)
-    response_dict = r.json()
-    
-    rune_price = np.round(float(response_dict['runePriceUSD']), 2)
-    total_pooled_rune = float(response_dict['runeDepth']) / 1e7
-    
-    
-    return  rune_price, total_pooled_rune 
-
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
-def get_multichain_pool_data() -> pd.DataFrame:
-   
-    # TODO - doc string
-
-    my_request = 'https://midgard.thorchain.info/v2/pools'
-    
-    r = requests.get(my_request)
-    response_dict = r.json()
-    
-    
-    return pd.DataFrame(response_dict)
-    
-
-#@st.cache(suppress_st_warning=True, allow_output_mutation=True)
-def calculate_non_rune_TVL(df) -> float:
-    '''
-    Calulates total non Rune value locked in the Network by summing
-    all Pool USD value.
-    '''
-    df = df.copy()
-    
-    df['total_value_USD'] = df['assetPriceUSD'].astype(float) * (df['assetDepth'].astype(float) / 1e7 )
-    
-    # Divide by 2 here b/c half the value is in Rune, half in the asset.
-    total_non_rune_tvl = df['total_value_USD'].sum() / 2
-    
-    return total_non_rune_tvl
 
 
 ########################################################################################
@@ -240,73 +171,46 @@ with col3:
 st.error("This dashboard is in beta, there may be bugs. 🐞")
 if st.button("➡️  I understand there could be bugs, let me in!"):
 
-
     with st.beta_expander("Rune Baseline Price ⚖️"):
     
         st.write('RUNE TO MOON!')
-        st.write(f'Data Source for MCCN: {"https://midgard.thorchain.info/v2/network"}')
-       # network_df = fetch_network_rune_data()
-
-        # This method of calculating total_pooled_rune is simplified below
-        #total_pooled_rune = network_df['totalPooledRune'][0].astype(float) / 1e7
-        
-        #total_reserve = network_df['totalReserve'][0].astype(float) / 1e7
-
-        #total_active_bond = network_df['totalActiveBond'][0].astype(float) / 1e7
-        #total_standby_bond = network_df['totalStandbyBond'][0].astype(float) / 1e7
-        
-
-        # Market Price, total pooled_rune
-        #rune_market_price, total_pooled_rune = get_rune_market_price_and_depth()
-        
-        #rune_list = [
-         #       total_pooled_rune,
-                #total_reserve, # EXCLUDE from in-network calculation!
-          #      total_active_bond,
-               # total_standby_bond # excluded per Slaw   
-           # ]
-
-        # TRYING to match Slaw by subtracting `total_standby_bond`
-        #total_rune_in_network = np.round(total_pooled_rune + total_active_bond , 2) - total_standby_bond
-        
-        # Get MCCN Pool data
-        #mccn_pool_df = get_multichain_pool_data()
-
-        # Calculate non-Rune TVL
-        #nonrune_tvl = calculate_non_rune_TVL(df=mccn_pool_df)
-        
-        # Deterministic Value in USD
-        #deterministic_value = 3 * nonrune_tvl # 3:1
-
-        
-        #baseline_price = deterministic_value / total_rune_in_network
-        
-        #in_net_speculation_premium = rune_market_price - baseline_price
-        
-        # Spec in percentage terms
-        #speculation_pct = 100 * np.round(in_net_speculation_premium, 2)/ np.round(rune_market_price, 2)
         
         rune_dict = get_rune_stats()
 
-        # `:,` formats values with comma for easier reading.
+        # Note:  `:,` formats values with comma for easier reading.
+        # TODO can format all of these with a helper function later 
 
-        st.write(f'total_pooled_rune: ᚱ{np.round(rune_dict["Rune_in_LP_count"], 2):,}')
-        #st.write(f'total_reserve_rune: {np.round(total_reserve, 2):,}')
-        st.write(f'total_active_bond_rune: ᚱ{np.round(rune_dict.get("Rune_bonded_count"), 2):,}')
-        st.write(f'Total Rune in-Network: ᚱ{np.round(rune_dict.get("total_in_network_count"), 2):,}')
-        #st.write(f'total_standby_bond_rune: {np.round(total_standby_bond, 2):,}')
-        st.write('-'* 30)
-        
+        # Total Pooled Rune
+        st.markdown(f'**Total Pooled Rune (MCCN + SCCN):** **ᚱ**{np.round(rune_dict["Rune_in_LP_count"], 2):,}')
+        # Total Active Bonded Rune
+        st.markdown(f'**Total Active Bonded Rune:** **ᚱ**{np.round(rune_dict.get("Rune_bonded_count"), 2):,}')
+        # In-Network Rune
+        st.markdown(f'**Total In-Network Rune:** **ᚱ**{np.round(rune_dict.get("total_in_network_count"), 2):,}')
+        # Deterministic Value
+        st.markdown(f'**Total Deterministic Value:** **$**{np.round(rune_dict.get("deterministic_value_usd"), 2):,}')
+        # Market Price 
+        st.markdown(f'**Market Price (USD):** **$**{np.round(rune_dict.get("market_price_usd"), 2):,} (source: FTX)')
         # Calculate Baseline Price
-        #st.write(f"nonRUNE TVL: {np.round(nonrune_tvl, 2):,}")
-        st.write(f'Total Deterministic Value: ${np.round(rune_dict.get("deterministic_value_usd"), 2):,}')
-        #st.write(f"in-network RUNE: {np.round(total_rune_in_network,2):,}")
-        st.write(f'Market Price (USD): ${np.round(rune_dict.get("market_price_usd"), 2):,}')
-        st.write(f'Baseline Price (USD): ${np.round(rune_dict.get("determined_price"), 2):,}')
-        st.write(f'Speculation Premium (USD): ${np.round(rune_dict.get("speculation_premium_usd"), 2) :,}')
-        st.write(f'Speculation as a percentage of Market Price: {np.round(rune_dict.get("speculation_pct_of_market") * 100 ,2)}%')
+        st.markdown(f'**Baseline Price (USD):** **$**{np.round(rune_dict.get("determined_price"), 2):,}')
+        st.markdown(f'**Speculation Premium (USD):** **$**{np.round(rune_dict.get("speculation_premium_usd"), 2) :,}')
+        st.markdown(f'**Speculation percentage of Market Price:** {np.round(rune_dict.get("speculation_pct_of_market") * 100 ,2)}%')
 
 
+    with st.beta_expander("Baseline Price - Show me the math! 📐🤔"):
+
+        st.markdown(""" y=mx+b
+
+                """
+                )
+
+        st.latex("TotalRuneInNetwork = TotalPooledRune + TotalActiveBondedRune")
+
+        st.latex("DeterministicValue \, (USD) = TotalPooledRune * MarketPrice * 3")
+
+        st.latex(r"BaselinePrice \, (USD) = \frac{DeterministicValue}{TotalRuneInNetwork}")
+        st.latex("SpeculationPremium \, (USD) = MarketPrice - BaselinePrice")
+
+        st.latex(r"SpeculationPercentOfMarket \, (\%) = \frac{SpeculationPremium}{MarketPrice} * 100")
 # ------------------------------ Trading View Chart ------------------------------
 
     with st.beta_expander("Market (Binance) 📈📊"):
@@ -337,16 +241,19 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
             width=900,
         )
 
+
+    with st.beta_expander("ThorChain Data Resources"):
+
+        st.write(f'Data Source for MCCN: {"https://midgard.thorchain.info/v2/network"}')
+        st.write(f'Data Source for SCCN: {"http://thorb.sccn.nexain.com:8080/v1/network"}')
+
     # TODO add additional tools
     with st.beta_expander("Support Development 🛠️ 🙏"):
         
-        #st.write('-' * 30)
         st.write('If this dashboard is helpful consider supporting development.')
+        st.write("Were a distributed team of TradFi -> ThorFi Data Folks")
         st.write('Project Roadmap will come soon.')
         st.markdown(' **THOR Address:** `thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392`')
         st.markdown('**BNB Address:** `bnb1t6nwpm5scau65gkm9ys8wceutz5p2a3mjhmjuc`')
         st.markdown(' **View Recent Transactions:** [https://thorchain.net/#/address/thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392](https://thorchain.net/#/address/thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392)')
-     #   st.write('Pool STATS go here...')
 
-    #with st.beta_expander("Social"):
-    #    st.write('Social data coming soon...') 
