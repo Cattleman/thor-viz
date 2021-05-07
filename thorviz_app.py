@@ -41,7 +41,6 @@ def get_rune_stats() -> Dict[str, float]:
     Gathers ThorChain Network data from MCCN and SCCN,
     """ 
 
-    
     market_price = get_market_price()
     
     # MCCN
@@ -162,9 +161,9 @@ with col2:
     st.title('⚡⚡⚡ #RAISETHECAPS ⚡⚡⚡')
 
 with col3:
-    st.write("")
-    st.markdown("[github](https://github.com/Cattleman/thor-viz)")
-    st.markdown("[twitter](https://twitter.com/IanHensel)")
+    st.markdown("[![](coin_icons/btc_logo.png)](https://streamlit.io)")
+    st.markdown("[Github](https://github.com/Cattleman/thor-viz)")
+    st.markdown("[Twitter](https://twitter.com/JormungandrThor)")
 
 # ------------------------------ Sections ------------------------------
 
@@ -182,6 +181,8 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
 
         # Total Pooled Rune
         st.markdown(f'**Total Pooled Rune (MCCN + SCCN):** **ᚱ**{np.round(rune_dict["Rune_in_LP_count"], 2):,}')
+        # DUPLICATE
+        st.button(f' TEST - Total Pooled Rune (MCCN + SCCN): ᚱ{np.round(rune_dict["Rune_in_LP_count"], 2):,}', help='tooltip_test')
         # Total Active Bonded Rune
         st.markdown(f'**Total Active Bonded Rune:** **ᚱ**{np.round(rune_dict.get("Rune_bonded_count"), 2):,}')
         # In-Network Rune
@@ -211,6 +212,56 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
         st.latex("SpeculationPremium \, (USD) = MarketPrice - BaselinePrice")
 
         st.latex(r"SpeculationPercentOfMarket \, (\%) = \frac{SpeculationPremium}{MarketPrice} * 100")
+    
+    with st.beta_expander("Deterministic Price Simulator"):
+
+        st.write("Note: The calculations here are slightly different than the `Baseline price`. Here we are considering the Deterministic Price with TOTAL Rune, not just the in-network Rune.")
+        
+        st.markdown("# Instructions")
+        st.markdown("**1.** Adjust the Prices of each coin.")
+        st.markdown("**2.** Select a percentage of the total coins that will be LP'ed in ThorChain.")
+        st.markdown("**3.** 🤯🤯🤯 ")
+
+        st.markdown(" NOTE - this functionality doesnt work currently :-( ")
+        st.markdown("")
+
+        # NOTE to future ThorChads
+        # Streamlit app will rerun computation when slider values change,
+        # this isnt the ideal action...
+        # see: https://discuss.streamlit.io/t/entire-app-refreshes-when-i-move-slider/8458/3
+
+        col1, mid, col2 = st.beta_columns([1,1,20])
+        with col1:
+            st.image("coin_icons/btc_logo.png", width=40)
+        with col2:
+            st.markdown("**BTC**")
+        # TODO - fetch market price from FTX
+        st.slider(label="BTC Price - Adjust me!", min_value=30_000, max_value=100_000,value=50_000, step=1000)
+        st.slider("% BTC in LP", min_value=0.0, max_value=100.0,value=0.05, step=0.01)
+
+        col1, mid, col2 = st.beta_columns([1,1,20])
+        with col1:
+            st.image("coin_icons/eth_logo.png", width=40)
+        with col2:
+            st.markdown("**ETH**")
+        
+        eth_price = st.slider(label="ETH Price - Adjust me!", min_value=2000, max_value=10_000,value=3_500, step=100)
+        
+        eth_pct = st.slider("% ETH in LP", min_value=0.0, max_value=100.0,value=0.05, step=0.01)
+        
+
+        col1, mid, col2 = st.beta_columns([1,1,20])
+        with col1:
+            st.image("coin_icons/bnb_logo.png", width=40)
+        with col2:
+            st.markdown("**BNB**")
+
+        bnb_price = st.slider(label="BNB Price - Adjust me!", min_value=200, max_value=1000,value=650, step=50)
+
+        bnb_pct = st.slider("% BNB in LP", min_value=0.0, max_value=100.0, step=0.01)
+
+
+
 # ------------------------------ Trading View Chart ------------------------------
 
     with st.beta_expander("Market (Binance) 📈📊"):
@@ -242,7 +293,7 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
         )
 
 
-    with st.beta_expander("ThorChain Data Resources"):
+    with st.beta_expander("ThorChain Data Resources 💾🗄️"):
 
         st.write(f'Data Source for MCCN: {"https://midgard.thorchain.info/v2/network"}')
         st.write(f'Data Source for SCCN: {"http://thorb.sccn.nexain.com:8080/v1/network"}')
@@ -253,7 +304,7 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
         st.write('If this dashboard is helpful consider supporting development.')
         st.write("Were a distributed team of TradFi -> ThorFi Data Folks")
         st.write('Project Roadmap will come soon.')
-        st.markdown(' **THOR Address:** `thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392`')
+        st.markdown('**BTC Address:** `bc1qrf0vtudhdr4acfg6m9qdedekcmw5w2lghurahz` ')
+        st.markdown('**ETH Address:** `0x2368bf7b77319b43532087ebceab79546b980758` ')
         st.markdown('**BNB Address:** `bnb1t6nwpm5scau65gkm9ys8wceutz5p2a3mjhmjuc`')
-        st.markdown(' **View Recent Transactions:** [https://thorchain.net/#/address/thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392](https://thorchain.net/#/address/thor1z5q2umr0j44sj2lwdlt44rfpf25akxg9hf4392)')
 
