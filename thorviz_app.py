@@ -161,7 +161,6 @@ with col2:
     st.title('⚡⚡⚡ #RAISETHECAPS ⚡⚡⚡')
 
 with col3:
-    st.markdown("[![](coin_icons/btc_logo.png)](https://streamlit.io)")
     st.markdown("[Github](https://github.com/Cattleman/thor-viz)")
     st.markdown("[Twitter](https://twitter.com/JormungandrThor)")
 
@@ -216,11 +215,14 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
     with st.beta_expander("Deterministic Price Simulator"):
 
         st.write("Note: The calculations here are slightly different than the `Baseline price`. Here we are considering the Deterministic Price with TOTAL Rune, not just the in-network Rune.")
+       
         
         st.markdown("# Instructions")
         st.markdown("**1.** Adjust the Prices of each coin.")
         st.markdown("**2.** Select a percentage of the total coins that will be LP'ed in ThorChain.")
         st.markdown("**3.** 🤯🤯🤯 ")
+
+        st.markdown("[https://www.thorchain.community/](https://www.thorchain.community/)")
 
         st.markdown(" NOTE - this functionality doesnt work currently :-( ")
         st.markdown("")
