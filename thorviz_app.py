@@ -34,7 +34,7 @@ def get_market_price() -> float:
     
     return market_price
 
-@st.cache(suppress_st_warning=True, allow_output_mutation=True)
+#@st.cache(suppress_st_warning=True, allow_output_mutation=True)
 def get_rune_stats() -> Dict[str, float]:
     # TODO - docstring 
     """
