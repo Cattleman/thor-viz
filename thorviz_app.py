@@ -181,7 +181,7 @@ if st.button("➡️  I understand there could be bugs, let me in!"):
         # Total Pooled Rune
         st.markdown(f'**Total Pooled Rune (MCCN + SCCN):** **ᚱ**{np.round(rune_dict["Rune_in_LP_count"], 2):,}')
         # DUPLICATE
-        st.button(f' TEST - Total Pooled Rune (MCCN + SCCN): ᚱ{np.round(rune_dict["Rune_in_LP_count"], 2):,}', help='tooltip_test')
+        #st.button(f' TEST - Total Pooled Rune (MCCN + SCCN): ᚱ{np.round(rune_dict["Rune_in_LP_count"], 2):,}', help='tooltip_test')
         # Total Active Bonded Rune
         st.markdown(f'**Total Active Bonded Rune:** **ᚱ**{np.round(rune_dict.get("Rune_bonded_count"), 2):,}')
         # In-Network Rune
